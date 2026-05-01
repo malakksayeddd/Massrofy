@@ -27,6 +27,7 @@ public class DBHelper {
         }
     }
 
+    // insert expense
     public void insertTransaction(double amount, String category){
         try {
             String sql = "INSERT INTO transactions(amount, category) VALUES(?, ?)";
@@ -38,13 +39,25 @@ public class DBHelper {
             ps.executeUpdate();
             ps.close();
 
-            System.out.println("Inserted: " + amount + " - " + category);
-
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
+    // 🟢 US7: get all history
+    public ResultSet getAllTransactions(){
+        try {
+            String sql = "SELECT * FROM transactions ORDER BY timestamp DESC";
+            Statement stmt = conn.createStatement();
+            return stmt.executeQuery(sql);
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // chart helper (optional)
     public ResultSet getCategoryTotals(){
         try {
             String sql =

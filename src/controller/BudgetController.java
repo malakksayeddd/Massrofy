@@ -11,7 +11,6 @@ public class BudgetController {
 
     private LocalDate lastUpdate = LocalDate.now();
 
-    // create budget cycle
     public void createCycle(double t, int d){
         total = t;
         days = d;
@@ -19,17 +18,14 @@ public class BudgetController {
         lastUpdate = LocalDate.now();
     }
 
-    // add expense
     public void addExpense(double amount){
         spent += amount;
     }
 
-    // remaining money
     public double getRemaining(){
         return total - spent;
     }
 
-    // 🟢 US5: rollover logic
     public void applyRollover(){
 
         LocalDate today = LocalDate.now();
@@ -43,13 +39,15 @@ public class BudgetController {
         if (days <= 0) days = 1;
 
         lastUpdate = today;
-
-        System.out.println("Rollover applied ✔");
     }
 
-    // daily limit (calls US5 automatically)
     public double calculateDailyLimit(){
         applyRollover();
         return getRemaining() / days;
+    }
+
+    public double getSpentPercentage(){
+        if (total == 0) return 0;
+        return (spent / total) * 100;
     }
 }
