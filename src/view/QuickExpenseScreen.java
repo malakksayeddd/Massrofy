@@ -26,11 +26,9 @@ public class QuickExpenseScreen extends JFrame {
         JButton save = new JButton("Save");
         save.setBounds(50,120,100,30);
 
-        // اختيار الكاتيجوري
         food.addActionListener(e -> category = "Food");
         transport.addActionListener(e -> category = "Transport");
 
-        // 🟢 SAVE (هنا أهم جزء)
         save.addActionListener(e -> {
 
             try {
@@ -41,16 +39,13 @@ public class QuickExpenseScreen extends JFrame {
                     return;
                 }
 
-                // 1️⃣ Save in DB (ده اللي بيخلي History يظهر)
                 DBHelper db = new DBHelper();
-                db.insertTransaction(a, category);
+                db.insertTransaction(a, category); // DB
 
-                // 2️⃣ Update budget
-                controller.addExpense(a);
+                controller.addExpense(a); // budget
 
-                JOptionPane.showMessageDialog(null, "Saved Successfully ✔");
+                JOptionPane.showMessageDialog(null, "Saved ✔");
 
-                // 3️⃣ back to dashboard
                 new Dashboard(controller);
                 dispose();
 

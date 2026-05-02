@@ -9,12 +9,18 @@ public class BudgetController {
     private double spent = 0;
     private int days;
 
-    private LocalDate lastUpdate = LocalDate.now();
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private LocalDate lastUpdate;
 
     public void createCycle(double t, int d){
         total = t;
         days = d;
         spent = 0;
+
+        startDate = LocalDate.now();
+        endDate = startDate.plusDays(d);
+
         lastUpdate = LocalDate.now();
     }
 
@@ -26,24 +32,25 @@ public class BudgetController {
         return total - spent;
     }
 
-    public void applyRollover(){
+    // 🟢 daily limit بيتغير تلقائي
+    public double calculateDailyLimit(){
+        int remainingDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), endDate);
 
-        LocalDate today = LocalDate.now();
+        if (remainingDays <= 0) remainingDays = 1;
 
-        long passedDays = ChronoUnit.DAYS.between(lastUpdate, today);
-
-        if (passedDays <= 0) return;
-
-        days = days - (int) passedDays;
-
-        if (days <= 0) days = 1;
-
-        lastUpdate = today;
+        return getRemaining() / remainingDays;
     }
 
-    public double calculateDailyLimit(){
-        applyRollover();
-        return getRemaining() / days;
+    public int getCurrentDay(){
+        return (int) ChronoUnit.DAYS.between(startDate, LocalDate.now()) + 1;
+    }
+
+    public LocalDate getStartDate(){
+        return startDate;
+    }
+
+    public LocalDate getEndDate(){
+        return endDate;
     }
 
     public double getSpentPercentage(){

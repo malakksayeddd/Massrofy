@@ -1,6 +1,8 @@
 package view;
 
 import controller.BudgetController;
+import database.DBHelper;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,61 +11,68 @@ public class Dashboard extends JFrame {
     public Dashboard(BudgetController controller){
 
         setTitle("Dashboard");
-        setSize(400,300);
+        setSize(400,400);
         setLayout(null);
 
-        double remaining = controller.getRemaining();
-        double daily = controller.calculateDailyLimit();
+        DBHelper db = new DBHelper();
+
+        JLabel start = new JLabel("Start: " + controller.getStartDate());
+        start.setBounds(20,10,200,20);
+
+        JLabel end = new JLabel("End: " + controller.getEndDate());
+        end.setBounds(200,10,200,20);
+
+        JLabel day = new JLabel("Day: " + controller.getCurrentDay());
+        day.setBounds(20,35,200,20);
+
+        JLabel remaining = new JLabel("Remaining: " + controller.getRemaining());
+        remaining.setBounds(20,60,300,30);
+
+        JLabel daily = new JLabel("Daily Limit: " + controller.calculateDailyLimit());
+        daily.setBounds(20,90,300,30);
+
+        JLabel today = new JLabel("Today Spent: " + db.getTodaySpent());
+        today.setBounds(20,120,300,30);
+
+        // 🟢 Warning
         double percent = controller.getSpentPercentage();
-
-        JLabel remainingLabel = new JLabel("Remaining: " + remaining);
-        remainingLabel.setBounds(50,30,300,30);
-
-        JLabel dailyLabel = new JLabel("Daily Limit: " + daily);
-        dailyLabel.setBounds(50,60,300,30);
-
         JLabel warning = new JLabel();
-        warning.setBounds(50,90,300,30);
+        warning.setBounds(20,150,300,30);
 
         if (percent >= 100){
-            warning.setText("❌ Budget Exceeded!");
+            warning.setText("❌ Budget Exceeded");
             warning.setForeground(Color.RED);
         } else if (percent >= 80){
-            warning.setText("⚠ Warning: " + percent + "% used");
+            warning.setText("⚠ 80% used!");
             warning.setForeground(Color.ORANGE);
         } else {
-            warning.setText("Budget Safe ✔");
+            warning.setText("✔ Safe");
             warning.setForeground(Color.GREEN);
         }
 
-        JButton addExpense = new JButton("Add Expense");
-        addExpense.setBounds(50,130,150,30);
+        JButton add = new JButton("Add Expense");
+        add.setBounds(20,190,150,30);
 
-        addExpense.addActionListener(e -> {
+        add.addActionListener(e -> {
             new QuickExpenseScreen(controller);
             dispose();
         });
 
-        JButton chart = new JButton("Chart");
-        chart.setBounds(50,170,150,30);
-
-        chart.addActionListener(e -> {
-            new ChartScreen();
-        });
-
-        // 🟢 US7 button
         JButton history = new JButton("History");
-        history.setBounds(220,130,120,30);
+        history.setBounds(200,190,150,30);
 
         history.addActionListener(e -> {
             new HistoryScreen();
         });
 
-        add(remainingLabel);
-        add(dailyLabel);
+        add(start);
+        add(end);
+        add(day);
+        add(remaining);
+        add(daily);
+        add(today);
         add(warning);
-        add(addExpense);
-        add(chart);
+        add(add);
         add(history);
 
         setVisible(true);

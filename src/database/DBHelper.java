@@ -4,32 +4,42 @@ import java.sql.*;
 
 public class DBHelper {
 
-    private Connection conn;
+    private static Connection conn;
 
     public DBHelper(){
         try {
-            conn = DriverManager.getConnection("jdbc:sqlite:masroofy.db");
 
-            Statement stmt = conn.createStatement();
+            if (conn == null){
 
-            stmt.execute(
-                "CREATE TABLE IF NOT EXISTS transactions (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "amount REAL," +
-                "category TEXT," +
-                "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)"
-            );
+                // 👈 مهم: نفس الملف دايمًا
+                conn = DriverManager.getConnection("jdbc:sqlite:./masroofy.db");
 
-            stmt.close();
+                Statement stmt = conn.createStatement();
+
+                // 👈 جدول مضبوط بالـ localtime
+                stmt.execute(
+                    "CREATE TABLE IF NOT EXISTS transactions (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "amount REAL," +
+                    "category TEXT," +
+                    "timestamp TEXT DEFAULT (datetime('now','localtime'))" +
+                    ")"
+                );
+
+                stmt.close();
+            }
 
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    // insert expense
+    // 🟢 INSERT (بيسجل فعلاً)
     public void insertTransaction(double amount, String category){
         try {
+
+            System.out.println("Saving expense..."); // debug
+
             String sql = "INSERT INTO transactions(amount, category) VALUES(?, ?)";
             PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -39,30 +49,51 @@ public class DBHelper {
             ps.executeUpdate();
             ps.close();
 
+            System.out.println("Saved ✔");
+
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    // 🟢 US7: get all history
+   public double getTodaySpent(){
+
+    double total = 0;
+
+    try {
+
+        // 👈 تاريخ النهارده
+        String today = java.time.LocalDate.now().toString();
+
+        String sql =
+            "SELECT SUM(amount) as total " +
+            "FROM transactions " +
+            "WHERE timestamp LIKE ?";
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, today + "%");
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()){
+            total = rs.getDouble("total");
+        }
+
+        System.out.println("Today = " + today);
+        System.out.println("Today Spent = " + total);
+
+    } catch (Exception e){
+        e.printStackTrace();
+    }
+
+    return total;
+}
+
+    // 🟢 HISTORY
     public ResultSet getAllTransactions(){
         try {
+
             String sql = "SELECT * FROM transactions ORDER BY timestamp DESC";
-            Statement stmt = conn.createStatement();
-            return stmt.executeQuery(sql);
-
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // chart helper (optional)
-    public ResultSet getCategoryTotals(){
-        try {
-            String sql =
-                "SELECT category, SUM(amount) as total " +
-                "FROM transactions GROUP BY category";
 
             Statement stmt = conn.createStatement();
             return stmt.executeQuery(sql);

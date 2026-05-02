@@ -8,7 +8,7 @@ public class HistoryScreen extends JFrame {
 
     public HistoryScreen(){
 
-        setTitle("Expense History");
+        setTitle("History");
         setSize(400,400);
         setLayout(null);
 
@@ -22,16 +22,11 @@ public class HistoryScreen extends JFrame {
             StringBuilder sb = new StringBuilder();
 
             while (rs != null && rs.next()){
-
-                double amount = rs.getDouble("amount");
-                String category = rs.getString("category");
-                String time = rs.getString("timestamp");
-
-                sb.append(amount)
+                sb.append(rs.getDouble("amount"))
                   .append(" - ")
-                  .append(category)
+                  .append(rs.getString("category"))
                   .append(" - ")
-                  .append(time)
+                  .append(rs.getString("timestamp"))
                   .append("\n");
             }
 
